@@ -10,10 +10,6 @@ import java.util.concurrent.*;
 
 public class Main {
 
-
-
-
-
     static ArrayList<Clause[]> formula = new ArrayList<Clause[]>();
     static int numClauses = 0; // How many clauses are present in the formula.
     static int maxNumVars = 0; // The maximum number of variables that can be in a clause at any given time throughout the formula
@@ -124,6 +120,28 @@ public class Main {
     }
 
     public static boolean isSatisfiable(ArrayList<Clause[]> formula, ArrayList<int[]> vars) {
+        // initialize formula as unsatisfiable
+        Boolean isSatisfiable = false;
+        for (Clause[] clause : formula) {
+            //                                  x4 = on | x3 = off | 1 = off | 2 = on
+            //                                  assume all other x's in maxVars = off
+            // convert the clause into correct format: [4, -3, -1, 2] , maxVars = 6
+            //                                                = [ 0(x1), 1(x2), 0(x3), 1(x4), 0, 0 ]
+            //                                                 [ 0 1 0 1 0 0 ] and if you find that in the
+            //                                                 variations its satisfiable
+            //
+            // }
+
+
+            // LOGIC
+            // run a for loop through all of the clauses. for each clause in the list
+            // test the vars until you find one that works
+            // if you find one that works flip it to satisfiable and then do the loop again
+            // but on the next clause in the formula.
+            //
+            // if you reach the end of the formula and the boolean isSatisfiable = true.
+            // return true. otherwise, return false.
+        }
         return true;
     }
 }
