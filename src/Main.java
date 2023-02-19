@@ -18,7 +18,6 @@ public class Main {
     static int numClauses = 0; // How many clauses are present in the formula.
     static int maxNumVars = 0; // The maximum number of variables that can be in a clause at any given time throughout the formula
 
-
     public static void main(String[] args) throws InterruptedException, ExecutionException
     {
         // Test code
