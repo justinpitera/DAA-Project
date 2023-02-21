@@ -5,9 +5,15 @@ import java.util.*;
 
 import java.util.concurrent.*;
 // To Do:
-//        (1) Add bruteforce functionality
-//        (2) Add code to test how many ms it takes to bruteforce
-//        Remaining two of these tasks being completed would result in Mission complete.
+//        (1) Add bruteforce functionality -> Logic found in Clause.java
+//        (2) I believe that I need to create a function inside of Clause that can return a list of actual literals
+//         Get literals                   x:  1  2  3  4  5
+//         [4, -3, 2] with 5 vars should be: [0, 1, 0, 1, 0]
+//         In terms of the bruteforcer, if you find a variation in 2^5 where
+//         currentVariation = [0, 1, 0, 1, 0] then the clause is satisfied.
+//         Now do this for all of the clauses in the formula
+//         If all of the clauses within the formula are satisfied, then the formula is satisfied by that variation.
+//         Where does the CNF logic come into play? (x1 or x2 or x3) and (x1 or x2 or x3) ???
 
 public class Main
 {
