@@ -4,9 +4,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 import java.util.concurrent.*;
-// To Do:
-//        (1) Add bruteforce functionality
-//        (2) Add code to test how many ms it takes to bruteforce
+
 public class Main
 {
 
@@ -114,13 +112,15 @@ function brute_force_solve(variables, clauses):
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("Satisfiable: null" ); // This will eventually be implemented
-
+        int[] literals;
         for (Clause[] clauseArray : formula)
         {
             for (Clause clause : clauseArray)
             {
-                int[] literals = clause.getLiterals();
+                literals = clause.getLiterals();
+
             }
+
         }
 
 
