@@ -7,8 +7,6 @@ import java.util.concurrent.*;
 // To Do:
 //        (1) Add bruteforce functionality
 //        (2) Add code to test how many ms it takes to bruteforce
-//        Remaining two of these tasks being completed would result in Mission complete.
-
 public class Main
 {
 
@@ -116,41 +114,43 @@ function brute_force_solve(variables, clauses):
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("Satisfiable: null" ); // This will eventually be implemented
+
+        for (Clause[] clauseArray : formula)
+        {
+            for (Clause clause : clauseArray)
+            {
+                int[] literals = clause.getLiterals();
+            }
+        }
+
+
+
         System.out.println("Elapsed time: " + elapsedTime + " milliseconds"); // Check, is it supposed to be millis?
     }
 
-
-
     // This method is based off of binary addition to create all the variations for n level of variations.
     // This comes out to 2^n level of variations.
-    public static int[] getNextVariation(int[] vars) {
+    public static int[] getNextVariation(int[] vars)
+    {
         int[] nextVariation = Arrays.copyOf(vars, vars.length);
         int index = nextVariation.length - 1;
         // Find the rightmost 0 value
-        while (index >= 0 && nextVariation[index] == 1) {
+        while (index >= 0 && nextVariation[index] == 1)
+        {
             index--;
         }
-        if (index >= 0) {
+        if (index >= 0)
+        {
             // Flip the rightmost 0 value to 1
             nextVariation[index] = 1;
             // Change all 1 values to the right of the rightmost 0 to 0
-            for (int i = index + 1; i < nextVariation.length; i++) {
+            for (int i = index + 1; i < nextVariation.length; i++)
+            {
                 nextVariation[i] = 0;
             }
         }
         return nextVariation;
     }
-
-
-
-
-
-
-
-
-
-
-
 }
 
 
