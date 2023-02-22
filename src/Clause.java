@@ -31,14 +31,14 @@ public class Clause
         return variables;
     }
 
-    // Get literals                   x:  1  2  3  4  5
-    // [4, -3, 2] with 5 vars should be: [0, 1, 0, 1, 0] = curreennt var
-    // In terms of the bruteforcer, if you find a variation in 2^5 where
-    // currentVariation = [0, 1, 0, 1, 0] then the clause is satisfied.
-    // Now do this for all of the clauses in the formula
-    // if all of the clauses are satisfied, the formula is satisfied
+    public int get(int i)
+    {
+        return variables.get(i);
+    }
 
 
+
+    //Unused but i kept it in there because i spent a while on it and i cant stop looking at it like it has to be important to some degree right? right.....?
     public int[] getLiterals() {
         // Initialize literal with all false values up to numVars number of variables
         int[] literals = new int[numVars];
@@ -59,11 +59,8 @@ public class Clause
                 }
                 literals[Math.abs(var) - 1] = literalValue;
             }
-
         }
-
         // Return literals
-
         return literals;
     }
 

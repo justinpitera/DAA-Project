@@ -8,21 +8,38 @@ import java.util.concurrent.*;
 public class Main
 {
 
-    private static ArrayList<Clause[]> formula = new ArrayList<Clause[]>();
+
+
+    // To Do:
+    // (1) Get isSatisfied working
+    // (2) Find new way to generate 2^n - > Using BigInteger.pow IS NOT ALLOWED!!!
+    // (3) Not super optional but there is a p formatted line in s20 i believe.
+    //     This file has an extra space between number of clauses and number of variables. it crashes the program
+    //     as is. I manually fixed it but it may be a good idea to add in functionality to program to avoid this issue
+    // New due data: Tues 28/2/23 @ 4pm
+
+
+    private static ArrayList<Clause> formula = new ArrayList<Clause>();
     private static int numClauses = 0; // How many clauses are present in the formula.
     private static int numVars = 0; // The number of variables that can be in a clause at any given time throughout the formula
+
+    boolean isSatisfied = false;
 
     public static void main(String[] args) throws InterruptedException, ExecutionException
     {
         // Test code
         File testFolderObject = new File(System.getProperty("user.dir") + "/Tests/");
-        File[] testFileList = testFolderObject.listFiles();
 
+        File testSpecific = new File(System.getProperty("user.dir") + "/Tests/s5.cnf");
+
+        File[] testFileList = testFolderObject.listFiles();
+        loadFile(testSpecific);
+/*
         for (File file : testFileList)
         {
             loadFile(file);
         }
-
+*/
         System.out.println(testFileList.length + " files read and solved.");
 
     }
@@ -45,6 +62,7 @@ public class Main
 
                 if (line.startsWith("p")) {
 
+
                     String[] args = line.split(" ");
                     numVars = Integer.parseInt(args[2]); //variables
                     numClauses = Integer.parseInt(args[3]); //clauses
@@ -65,7 +83,7 @@ public class Main
                                 }
                             }
                             // Add clause to formula
-                            formula.add(new Clause[]{newClause});
+                            formula.add(newClause);
                         }
                     }
                 }
@@ -77,6 +95,7 @@ public class Main
         // print the list for the user to see
 
         System.out.println("Working on: " + cnfFile.getPath());
+        // Keeping this to display to the user how many variations they can possibly have
         BigInteger maxVariations = BigInteger.valueOf(2).pow(numVars);
         System.out.println("Number of Variables: " + numVars + ", Number of Clauses: " + formula.size() + ", Maxiumum Variations: " + maxVariations.toString());
         System.out.println("Attempting to bruteforce...");
@@ -84,52 +103,99 @@ public class Main
         System.out.println("------------------------------------");
     }
 
-
-
-/*
-function brute_force_solve(variables, clauses):
-    for assignment in all_possible_assignments(variables):
-        if satisfies(assignment, clauses):
-            return assignment
-    return none
- */
-
     public static void bruteForce()
     {
         long startTime = System.currentTimeMillis();
+        boolean formulaSatisfied = false;
 
         //initialize first variation, all false. but as this goes through the for loop, the final variation should be all true
         int[] currentVariation = new int[numVars];
 
-        // Generate 2^(numVars) number of variations
-        BigInteger maxVariations = BigInteger.valueOf(2).pow(numVars);
-        for (BigInteger i = BigInteger.ZERO; i.compareTo(maxVariations) < 0; i = i.add(BigInteger.ONE))
-        {
-            // Check ifSatisfiable here but how... check the notes in Clause.java i made. show it to the tutor ask if its right
+        //Test the first variation against the list of clauses
+        formulaSatisfied = isSatisfied(currentVariation);
 
+        while (!isFinalVariation(currentVariation) && !formulaSatisfied)
+        {
             currentVariation = getNextVariation(currentVariation);
+            formulaSatisfied = isSatisfied(currentVariation);
         }
+
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
-        System.out.println("Satisfiable: null" ); // This will eventually be implemented
-        int[] literals;
-        for (Clause[] clauseArray : formula)
+
+        if (formulaSatisfied)
         {
-            for (Clause clause : clauseArray)
-            {
-                literals = clause.getLiterals();
-
-            }
-
+            System.out.println("Satisfiable: Yes");
+        } else
+        {
+            System.out.println("Satisfiable: No");
         }
-
-
-
-        System.out.println("Elapsed time: " + elapsedTime + " milliseconds"); // Check, is it supposed to be millis?
+        formulaSatisfied = false;
+        System.out.println("Elapsed time: " + elapsedTime + " milliseconds");
     }
 
-    // This method is based off of binary addition to create all the variations for n level of variations.
-    // This comes out to 2^n level of variations.
+
+
+    private static boolean isSatisfied(int[] currentVariation)
+    {
+        // Initialize as unsatisfied
+        boolean formulaSatisfied = false;
+
+        // Go through each clause in the formula
+        for (Clause currentClause : formula)
+        {
+            boolean clauseSatisfied = false;
+            // Go through each literal in the clause
+            for (int literal : currentClause.getVariables())
+            {
+                int state = 0; // initialize as off
+                if (literal > 0)
+                {
+                    state = 1; //on
+                }
+
+                // Check if the literal is satisfied by the current variation
+                if (currentVariation[Math.abs(literal) - 1] == state)
+                {
+                    clauseSatisfied = true;
+                    break;
+                }
+            }
+
+            // If the clause is not satisfied, try the next variation
+            if (!clauseSatisfied)
+            {
+                formulaSatisfied = false;
+                break;
+            }
+            else
+            {
+                formulaSatisfied = true;
+                continue;
+            }
+        }
+        return formulaSatisfied;
+    }
+
+
+
+
+    // Determinies if all of the ints in the current variation = 1.
+    // if it is not all 1's - > create next variation
+    public static boolean isFinalVariation(int[] currentVariation)
+    {
+        for (int i = 0; i < currentVariation.length; i++)
+        {
+            if (currentVariation[i] != 1)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+
     public static int[] getNextVariation(int[] vars)
     {
         int[] nextVariation = Arrays.copyOf(vars, vars.length);
@@ -151,6 +217,8 @@ function brute_force_solve(variables, clauses):
         }
         return nextVariation;
     }
+
+
 }
 
 
