@@ -33,13 +33,12 @@ public class Main
         File testSpecific = new File(System.getProperty("user.dir") + "/Tests/s5.cnf");
 
         File[] testFileList = testFolderObject.listFiles();
-        loadFile(testSpecific);
-/*
+
         for (File file : testFileList)
         {
             loadFile(file);
         }
-*/
+
         System.out.println(testFileList.length + " files read and solved.");
 
     }
