@@ -1,6 +1,5 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -23,7 +22,6 @@ public class Main
     private static final ArrayList<Clause> formula = new ArrayList<Clause>(); // The current formula to solve
     private static int numberOfVariables = 0; // The number of variables per clause in the formula
     private static long totalTime = 0; //The total time in took to solve all the files in the formulas directory
-
     /**
      * The main method provides a menu for the user to interact with the program.
      * It allows the user to load a single CNF file, solve all CNF files in the formulas' directory, list all files the formulas' directory, or exit the program.
@@ -40,6 +38,8 @@ public class Main
 
         while (userChoice != 4)
         {
+
+
             File formulasFolderObject = new File(System.getProperty("user.dir") + "/formulas/");
             File[] formulasFileList = formulasFolderObject.listFiles();
 
@@ -48,16 +48,26 @@ public class Main
             System.out.println("2. Bruteforce all formulas");
             System.out.println("3. List all files in formulas directory");
             System.out.println("4. Exit");
-            System.out.print("Make a selection (1-4) : ");
+            System.out.print("Make a selection (1-4): ");
 
 
             userChoice = scanner.nextInt();
 
-            switch (userChoice) {
+            switch (userChoice)
+            {
                 case 1:
                     System.out.print("Enter file name: ");
                     String fileName = scanner.next();
-                    loadFile(new File(System.getProperty("user.dir") + "/formulas/" + fileName));
+                    File formulaFile = new File(System.getProperty("user.dir") + "/formulas/"+ fileName);
+                    loadFile(formulaFile);
+                    // print the working path for the user to see
+                    System.out.println("Working on: " + fileName);
+                    // Display general information about current formula
+                    System.out.println("Number of Variables: " + numberOfVariables + ", Number of Clauses: " + formula.size());
+                    System.out.println("Attempting to bruteforce...");
+                    // Attempt to bruteforce current formula
+                    bruteForce();
+                    System.out.println("------------------------------------------------------------------------------------------------------------");
                     break;
                 case 2:
                     System.out.println("Attempting to solve all formulas in formulas directory...");
@@ -67,10 +77,8 @@ public class Main
                         loadFile(file);
                         // print the working path for the user to see
                         System.out.println("Working on: " + file.getPath());
-                        // Keeping this to display to the user how many variations they can possibly have
-                        BigInteger maxVariations = BigInteger.valueOf(2).pow(numberOfVariables);
                         // Display general information about current formula
-                        System.out.println("Number of Variables: " + numberOfVariables + ", Number of Clauses: " + formula.size() + ", Maxiumum Variations: " + maxVariations.toString());
+                        System.out.println("Number of Variables: " + numberOfVariables + ", Number of Clauses: " + formula.size());
                         System.out.println("Attempting to bruteforce...");
                         // Attempt to bruteforce current formula
                         bruteForce();
@@ -114,11 +122,15 @@ public class Main
             while (scanner.hasNextLine())
             {
                 String line = scanner.nextLine();
+                // Comment line, skip
                 if (line.startsWith("c"))
                 {
                     continue;
                 }
 
+                // Format line, [n] [m]
+                // n = Number of variables
+                // m = Number of clauses in file
                 if (line.startsWith("p"))
                 {
                     /*
@@ -143,11 +155,13 @@ public class Main
                         // Initialize current variable being read
                         int currentVariable = scanner.nextInt();
 
+                        // While the current variable being read isn't a 0, add it to the new clause and move the currentVariable to the next variable.
                         while (currentVariable != 0)
                         {
                             newClause.addVariable(currentVariable);
                             currentVariable = scanner.nextInt();
                         }
+                        //Add clause to the formula
                         formula.add(newClause);
                     }
                 }
