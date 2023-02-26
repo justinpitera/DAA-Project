@@ -1,7 +1,7 @@
 c instance by G2
 c Satisfiable
 c 
-p cnf 28 144
+p cnf 28  144
 -9 -22 15 0
 1 17 -26 0
 -28 6 -18 0

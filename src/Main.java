@@ -7,24 +7,63 @@ import java.util.concurrent.*;
 public class Main
 {
     private static ArrayList<Clause> formula = new ArrayList<Clause>();
-    private static int numClauses = 0; // How many clauses are present in the formula.
-    private static int numVars = 0; // The number of variables that can be in a clause at any given time throughout the formula
-
-    boolean isSatisfied = false;
+    private static int numberOfVariables = 0; // The number of variables that can be in a clause at any given time throughout the formula
+    private static int numberOfClauses = 0; // How many clauses are present in the formula.
 
     public static void main(String[] args) throws InterruptedException, ExecutionException
     {
-        // Test code
-        File testFolderObject = new File(System.getProperty("user.dir") + "/Tests/");
+        Scanner scanner = new Scanner(System.in);
 
-        File[] testFileList = testFolderObject.listFiles();
+        int userChoice = 0;
 
-        for (File file : testFileList)
+        while (userChoice != 4)
         {
-            loadFile(file);
+            File formulasFolderObject = new File(System.getProperty("user.dir") + "/formulas/");
+            File[] formulasFileList = formulasFolderObject.listFiles();
+
+            System.out.println("Welcome to the SAT CNF Solver:");
+            System.out.println("1. Bruteforce formula");
+            System.out.println("2. Bruteforce all formulas");
+            System.out.println("3. List all files in formulas directory");
+            System.out.println("4. Exit");
+            System.out.print("Make a selection (1-4) : ");
+
+
+            userChoice = scanner.nextInt();
+
+            switch (userChoice) {
+                case 1:
+                    System.out.print("Enter file name: ");
+                    String fileName = scanner.next();
+                    loadFile(new File(System.getProperty("user.dir") + "/formulas/" + fileName));
+                    break;
+                case 2:
+                    System.out.println("Attempting to solve all formulas in formulas directory...");
+                    for (File file : formulasFileList)
+                    {
+                        loadFile(file);
+                    }
+                    System.out.println(formulasFileList.length + " files read and solved.");
+                    break;
+                case 3:
+                    System.out.println("All files in formulas directory:");
+                    for (File file : formulasFileList)
+                    {
+                        System.out.println(file.getName() + " ... " + file.getPath());
+                    }
+                    break;
+                case 4:
+                    System.out.println("Closing...");
+                    break;
+                default:
+                    System.out.println("Invalid choice, try again.");
+                    break;
+            }
+
+
         }
 
-        System.out.println(testFileList.length + " files read and solved.");
+
 
     }
 
@@ -46,12 +85,16 @@ public class Main
 
                 if (line.startsWith("p"))
                 {
-                    String[] args = line.split(" ");
-                    numVars = Integer.parseInt(args[2]); //variables
-                    numClauses = Integer.parseInt(args[3]); //clauses
-                    for (int i = 0; i < numClauses; i++)
+                    /*
+                    The trim() method removes any leading or trailing whitespace characters from the input string.
+                     The split("\\s+") method splits the string into an array of substrings based on one or more whitespace characters.
+                     */
+                    String[] args = line.trim().split("\\s+");
+                    numberOfVariables = Integer.parseInt(args[2]); //variables
+                    numberOfClauses = Integer.parseInt(args[3]); //clauses
+                    for (int i = 0; i < numberOfClauses; i++)
                     {
-                        // Base casen no more integers to be read
+                        // Base case no more integers to be read
                         if (!(scanner.hasNextInt()))
                         {
                             break;
@@ -75,8 +118,8 @@ public class Main
             // print the list for the user to see
             System.out.println("Working on: " + cnfFile.getPath());
             // Keeping this to display to the user how many variations they can possibly have
-            BigInteger maxVariations = BigInteger.valueOf(2).pow(numVars);
-            System.out.println("Number of Variables: " + numVars + ", Number of Clauses: " + formula.size() + ", Maxiumum Variations: " + maxVariations.toString());
+            BigInteger maxVariations = BigInteger.valueOf(2).pow(numberOfVariables);
+            System.out.println("Number of Variables: " + numberOfVariables + ", Number of Clauses: " + formula.size() + ", Maxiumum Variations: " + maxVariations.toString());
             System.out.println("Attempting to bruteforce...");
             bruteForce();
             System.out.println("------------------------------------------------------------------------------------------------------------");
@@ -93,7 +136,7 @@ public class Main
         boolean formulaSatisfied = false;
 
         //initialize first variation, all false. but as this goes through the for loop, the final variation should be all true
-        int[] currentVariation = new int[numVars];
+        int[] currentVariation = new int[numberOfVariables];
 
         //Test the first variation against the list of clauses
         formulaSatisfied = isSatisfied(currentVariation);
@@ -109,6 +152,14 @@ public class Main
         if (formulaSatisfied)
         {
             System.out.println("Satisfiable: Yes");
+            // Print out variation that satisfies the formula
+            System.out.print("Solution: ");
+            System.out.print("[ ");
+            for (int variable : currentVariation)
+            {
+                System.out.print(variable + " ");
+            }
+            System.out.print("]\n");
         } else
         {
             System.out.println("Satisfiable: No");
@@ -152,7 +203,6 @@ public class Main
             else
             {
                 formulaSatisfied = true;
-                continue;
             }
         }
         return formulaSatisfied;
