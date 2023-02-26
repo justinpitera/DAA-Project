@@ -6,6 +6,7 @@ import java.util.List;
 public class Clause
 {
 
+
     private LinkedList<Integer> variables = new LinkedList<Integer>();
 
     public Clause(LinkedList<Integer> variables)
