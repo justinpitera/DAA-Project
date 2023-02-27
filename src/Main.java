@@ -215,7 +215,7 @@ public class Main
             {
                 System.out.print(variable + " ");
             }
-            System.out.print("]\n");
+            System.out.println("]");
         } else
         {
             System.out.println("Satisfiable: No");
