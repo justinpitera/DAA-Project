@@ -1,3 +1,5 @@
+package com.daa.sat;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -11,8 +13,8 @@ import java.util.concurrent.*;
  * Finalized Date: 2.26.2023
  * Design and Analysis of Algorithms - Spring 2023
  * -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
- * Main.java
- * The Main class serves as the driver class for the Bruteforcer
+ * bruteforce.Main.java
+ * The bruteforce.Main class serves as the driver class for the Bruteforcer
  * It allows the user to load a single CNF file, solve all CNF files in the formulas' directory, list all files in the formulas directory, or exit the program.
  * It also provides a function to try every possible combination of variables via a bruteforce approach in the formula and determines if there is a satisfying variation.
  */
