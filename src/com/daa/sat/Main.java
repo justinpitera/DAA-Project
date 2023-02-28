@@ -23,6 +23,7 @@ public class Main
 {
     private static final ArrayList<Clause> formula = new ArrayList<Clause>(); // The current formula to solve
     private static int numberOfVariables = 0; // The number of variables per clause in the formula
+    private static int numberOfClauses = 0; // The number of clauses per formula file
     private static long totalTime = 0; //The total time in took to solve all the files in the formulas directory
     /**
      * The main method provides a menu for the user to interact with the program.
@@ -142,7 +143,7 @@ public class Main
                     String[] args = line.trim().split("\\s+");
                     numberOfVariables = Integer.parseInt(args[2]); //variables
                     // How many clauses are present in the formula.
-                    int numberOfClauses = Integer.parseInt(args[3]); //clauses
+                    numberOfClauses = Integer.parseInt(args[3]); //clauses
                     for (int i = 0; i < numberOfClauses; i++)
                     {
                         // Base case no more integers to be read
