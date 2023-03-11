@@ -1,4 +1,4 @@
-package com.daa.sat;
+package com.daa.bruteforce;
 
 import java.util.LinkedList;
 
