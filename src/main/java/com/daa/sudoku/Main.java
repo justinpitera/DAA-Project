@@ -1,6 +1,9 @@
 package com.daa.sudoku;
 
-import org.sat4j.*; // Definitely change this
+import org.sat4j.*;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * Sudoku Solver
@@ -16,8 +19,18 @@ import org.sat4j.*; // Definitely change this
 public class Main
 {
 
-    public static void main(String[] args)
-    {
 
+    /**
+     * X Each cell must contain a number between 1 and 9.
+     *   Each row must contain each number between 1 and 9 exactly once.
+     *   Each column must contain each number between 1 and 9 exactly once.
+     *   Each 3x3 box must contain each number between 1 and 9 exactly once.
+     * X Given clues are satisfied
+
+     * @param args
+     */
+    public static void main(String[] args) throws IOException {
+        Puzzle newPuz = new Puzzle("Sudoku Solver/puzzles/puz1");
+        newPuz.generateCNFFile();
     }
 }
