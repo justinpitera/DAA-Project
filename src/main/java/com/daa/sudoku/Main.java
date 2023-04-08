@@ -2,8 +2,10 @@ package com.daa.sudoku;
 
 import org.sat4j.*;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Sudoku Solver
@@ -19,7 +21,7 @@ import java.io.IOException;
 public class Main
 {
 
-
+    ArrayList<Puzzle> PuzzleList = new ArrayList<Puzzle>();
     /**
      * X Each cell must contain a number between 1 and 9.
      *   Each row must contain each number between 1 and 9 exactly once.
@@ -30,7 +32,25 @@ public class Main
      * @param args
      */
     public static void main(String[] args) throws IOException {
-        Puzzle newPuz = new Puzzle("Sudoku Solver/puzzles/puz1");
-        newPuz.generateCNFFile();
+
+        generateCNFFiles();
+    }
+
+
+    public static void generateCNFFiles() throws IOException {
+        File formulasFolderObject = new File(System.getProperty("user.dir") + "/Sudoku Solver/puzzles");
+        File[] formulasFileList = formulasFolderObject.listFiles();
+
+
+        for (File file : formulasFileList)
+        {
+            Puzzle newPuzzle = new Puzzle(file.getPath());
+            newPuzzle.generateCNFFile();
+        }
+
+    }
+    public void SolvePuzzles()
+    {
+
     }
 }

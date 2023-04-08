@@ -79,34 +79,26 @@ public class Puzzle {
         formula.append("p cnf " + numberOfVariables + " " + numberOfClauses + "\n");
 
         // Constraint # 1 - Each cell in the sizeXsize puzzle must have a value between 1 and size
-        for (int i = 1; i <= size - 1; i++) { // For each row
-            for (int j = 1; j <= size - 1; j++) { // For each column per row
-                for (int k = 1; k <= size - 1; k++) { // For each cell
-                    formula.append(code(i, j, k, size) + " ");
+        for (int row = 1; row <= size - 1; row++) { // For each row
+            for (int column = 1; column <= size - 1; column++) { // For each column per row
+                for (int cell = 1; cell <= size - 1; cell++) { // For each cell
+                    formula.append(code(row, column, cell, size) + " ");
                 }
                 formula.append("0\n");
             }
         }
 
 
-        // Constraint # 2 - Each Column must containt a value between 1 and 9 exactly once
-        // Constraint # 1 - Each cell in the sizeXsize puzzle must have a value between 1 and size
-        for (int i = 1; i <= size - 1; i++) { // For each row
-            for (int j = 1; j <= size - 1; j++) { // For each column per row
-                for (int k = 1; k <= size - 1; k++) { // For each cell
-                }
-                formula.append("0\n");
-            }
-        }
+
 
 
 
 
         // Final Constraint: given clues
-        for (int i = 0; i <= size - 1; i++) { // For each row
-            for (int j = 0; j <= size - 1; j++) { // For each column
-                if (!(board[i][j] == 0)) { // If the current value [i,j] ! = 0
-                    int literal = code(i, j, board[i][j],size) - 1; // Encode the literal
+        for (int row = 0; row <= size - 1; row++) { // For each row
+            for (int column = 0; column <= size - 1; column++) { // For each column
+                if (!(board[row][column] == 0)) { // If the current value [i,j] ! = 0
+                    int literal = code(row, column, board[row][column],size) - 1; // Encode the literal
                     formula.append(literal).append(" 0\n"); // Append encoded literal
                 }
             }
@@ -117,11 +109,10 @@ public class Puzzle {
         System.out.println(formula.toString());
 
 
-        System.out.println(size);
+
         // Write to file and close file
         writer.write(formula.toString());
         writer.close();
-        System.out.println(decode(2273,9));
     }
 
 
@@ -139,6 +130,7 @@ public class Puzzle {
         int i = code / (size * size);
         return String.format("(%d, %d, %d)", i , j, k + 1);
     }
+
 
 
 
