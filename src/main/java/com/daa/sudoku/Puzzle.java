@@ -1,6 +1,7 @@
 package com.daa.sudoku;
 
 import java.io.*;
+import java.util.ArrayList;
 
 
 public class Puzzle {
@@ -9,7 +10,7 @@ public class Puzzle {
     private String puzzleName;
     private int size;
 
-
+    private static final ArrayList<Integer> formula = new ArrayList<>(); // The current formula to generate a file for
 
     /**
      * Puzzle
@@ -65,30 +66,26 @@ public class Puzzle {
      * @throws IOException Indicates a failure in IO operations
      */
     public void generateCNFFile() throws IOException {
+        formula.clear();
 
 
-        // Initialize the formula, the list of clauses
-        StringBuilder formula = new StringBuilder();
         // Initialize the FileWriter to store the cnf file
-        FileWriter writer = new FileWriter("Sudoku Solver/formulas/" + puzzleName + "_formula.cnf");
+        PrintWriter writer = new PrintWriter("Sudoku Solver/formulas/" + puzzleName + "_formula.cnf");
 
         // Add DIMACS format line
         int numberOfVariables = ((size*size) * size);
         // Concern for later: how am i going to get this at the top of the file?
         int numberOfClauses = 0;
-        formula.append("p cnf " + numberOfVariables + " " + numberOfClauses + "\n");
 
         // Constraint # 1 - Each cell in the sizeXsize puzzle must have a value between 1 and size
         for (int row = 1; row <= size - 1; row++) { // For each row
             for (int column = 1; column <= size - 1; column++) { // For each column per row
                 for (int cell = 1; cell <= size - 1; cell++) { // For each cell
-                    formula.append(code(row, column, cell, size) + " ");
+                    formula.add(code(row,column,cell,size));
                 }
-                formula.append("0\n");
+                formula.add(0);
             }
         }
-
-
 
 
 
@@ -99,20 +96,25 @@ public class Puzzle {
             for (int column = 0; column <= size - 1; column++) { // For each column
                 if (!(board[row][column] == 0)) { // If the current value [i,j] ! = 0
                     int literal = code(row, column, board[row][column],size) - 1; // Encode the literal
-                    formula.append(literal).append(" 0\n"); // Append encoded literal
+                    formula.add(literal);
+                    formula.add(0);
                 }
             }
         }
-
-        // Print out the generated formula to the user
-        System.out.println("Generated formula for "  + puzzleName + ":");
-        System.out.println(formula.toString());
-
-
-
-        // Write to file and close file
-        writer.write(formula.toString());
+        for (Integer num : formula) {
+            writer.print(num + " ");
+            if (num == 0) {
+                writer.println(); // print a newline character
+            }
+        }
         writer.close();
+
+
+
+
+
+
+
     }
 
 
