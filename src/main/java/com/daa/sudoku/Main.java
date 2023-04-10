@@ -2,10 +2,17 @@ package com.daa.sudoku;
 
 import org.sat4j.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import org.sat4j.reader.DimacsReader;
+import org.sat4j.reader.InstanceReader;
+import org.sat4j.reader.ParseFormatException;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IProblem;
+import org.sat4j.minisat.SolverFactory;
+import org.sat4j.specs.TimeoutException;
+import org.sat4j.tools.ModelIterator;
 
 /**
  * Sudoku Solver
@@ -31,26 +38,76 @@ public class Main
 
      * @param args
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ContradictionException, TimeoutException, ParseFormatException {
 
         generateCNFFiles();
+
     }
 
+    public static void generateCNFFiles() throws IOException, ContradictionException, TimeoutException, ParseFormatException {
+        File puzzlesFolderObject = new File(System.getProperty("user.dir") + "/Sudoku Solver/puzzles");
+        File[] puzzlesFileList = puzzlesFolderObject.listFiles();
 
-    public static void generateCNFFiles() throws IOException {
-        File formulasFolderObject = new File(System.getProperty("user.dir") + "/Sudoku Solver/puzzles");
-        File[] formulasFileList = formulasFolderObject.listFiles();
 
 
-        for (File file : formulasFileList)
+        for (File file : puzzlesFileList)
         {
             Puzzle newPuzzle = new Puzzle(file.getPath());
             newPuzzle.generateCNFFile();
+
         }
 
-    }
-    public void SolvePuzzles()
-    {
 
+
+
+        File formulasFolderObject = new File(System.getProperty("user.dir") + "/Sudoku Solver/formulas");
+        File[] formulasFileList = formulasFolderObject.listFiles();
+        for (File file : formulasFileList)
+        {
+            SolvePuzzle(file.getPath());
+        }
+
+
+    }
+    public static void SolvePuzzle(String puzzlePath) throws TimeoutException, IOException, ContradictionException, ParseFormatException {
+        ISolver solver = SolverFactory.newDefault();
+        ModelIterator mi = new ModelIterator(solver);
+        solver.setTimeout(3600); // 1 hour timeout
+        InstanceReader reader = new InstanceReader(mi);
+
+
+        // filename is given on the command line
+        try {
+            boolean unsat = true;
+            IProblem problem = reader.parseInstance(puzzlePath);
+            while (problem.isSatisfiable()) {
+                unsat = false;
+                int [] model = problem.model();
+                // do something with each model
+            }
+            if(unsat)
+            {
+                System.out.println("Puzzle unsatisfiable");
+            } else {
+                System.out.println("Puzzle satisfied");
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (ParseFormatException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ContradictionException e) {
+            System.out.println("Unsatisfiable (trivial)!");
+        } catch (TimeoutException e) {
+            System.out.println("Timeout, sorry!");
+        }
+    }
+    public static String decode(int code, int inputSize) {
+        int k = code % inputSize;
+        int j = (code / inputSize) % inputSize;
+        int i = code / (inputSize * inputSize);
+        return String.format("(%d, %d, %d)", i , j, k + 1);
     }
 }

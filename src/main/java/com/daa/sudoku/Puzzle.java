@@ -2,6 +2,7 @@ package com.daa.sudoku;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Puzzle {
@@ -66,24 +67,35 @@ public class Puzzle {
      * @throws IOException Indicates a failure in IO operations
      */
     public void generateCNFFile() throws IOException {
+        int clauseCount = 0;
+
+
         formula.clear();
 
 
         // Initialize the FileWriter to store the cnf file
         PrintWriter writer = new PrintWriter("Sudoku Solver/formulas/" + puzzleName + "_formula.cnf");
 
-        // Add DIMACS format line
-        int numberOfVariables = ((size*size) * size);
-        // Concern for later: how am i going to get this at the top of the file?
-        int numberOfClauses = 0;
 
-        // Constraint # 1 - Each cell in the sizeXsize puzzle must have a value between 1 and size
-        for (int row = 1; row <= size - 1; row++) { // For each row
-            for (int column = 1; column <= size - 1; column++) { // For each column per row
-                for (int cell = 1; cell <= size - 1; cell++) { // For each cell
-                    formula.add(code(row,column,cell,size));
+        // This code implements constraint #8 that ensures that each subgrid in a Sudoku puzzle contains at most one occurrence of each value.
+        // Calculate the size of each subgrid
+        int subGrid = (int) Math.sqrt(size);
+        // Iterate through each subgrid in the Sudoku board
+        for(int grid = 1; grid <= size; grid += subGrid) {
+            for (int grid2 = 1; grid2 <= size; grid2 += subGrid) {
+                // Iterate through each possible value in the subgrid
+                for (int val = 1; val <= size; val++) {
+                    // Iterate through each cell in the subgrid
+                    for (int row = grid; row <= grid + (subGrid - 1); row++) {
+                        for (int col = grid2; col <= grid2 + (subGrid - 1); col++) {
+                            // Add the literal for the cell and value to the clause
+                            formula.add(code(row, col, val, size));
+                        }
+                    }
+                    // Terminate the clause with 0, add it to the formula, and increment the clause count
+                    formula.add(0);
+                    clauseCount++;
                 }
-                formula.add(0);
             }
         }
 
@@ -91,56 +103,83 @@ public class Puzzle {
 
 
 
-        // Final Constraint: given clues
+
+        // This code implements constraint #9 that ensures that given values for cells in a Sudoku puzzle are respected.
+        // The code iterates through each row and column of the Sudoku board.
         for (int row = 0; row <= size - 1; row++) { // For each row
             for (int column = 0; column <= size - 1; column++) { // For each column
-                if (!(board[row][column] == 0)) { // If the current value [i,j] ! = 0
-                    int literal = code(row, column, board[row][column],size) - 1; // Encode the literal
+
+                // If the current cell value is not equal to 0 (i.e., a given value)
+                if (!(board[row][column] == 0)) {
+                    // Encode the literal for the given value using the code() function
+                    int literal = code(row, column, board[row][column], size);
+                    // Add the literal to the formula and terminate the clause with 0
                     formula.add(literal);
                     formula.add(0);
+                    // Increment the clause count
+                    clauseCount++;
                 }
             }
         }
+
+
+
+        for (int row = 1; row <= size; row++) { // For each row
+            for (int val = 1; val <= size; val++) { // For each value
+                for (int col = 1; col <= size; col++) { // For each column in the row
+                    formula.add(code(row, col, val, size));
+                }
+                formula.add(0); // Terminate the clause
+                clauseCount++;
+            }
+        }
+
+
+        for (int col = 1; col <= size; col++) { // For each column
+            for (int val = 1; val <= size; val++) { // For each value
+                for (int row = 1; row <= size; row++) { // For each row in the column
+                    formula.add(code(row, col, val, size));
+                }
+                formula.add(0); // Terminate the clause
+                clauseCount++;
+            }
+        }
+
+
+
+        // Write everything to the file starting with format line
+        writer.write("p cnf " + (size*size*size) + " " + clauseCount + "\n");
+
         for (Integer num : formula) {
-            writer.print(num + " ");
+
+            writer.write(num + " ");
+
             if (num == 0) {
-                writer.println(); // print a newline character
+                writer.write("\n"); // print a newline character
             }
         }
         writer.close();
-
-
-
-
-
-
-
     }
 
 
+
+    public int getSize()
+    {
+        return size;
+    }
 
 
     // Encode values to base-size
-    public int code(int i, int j, int k,int size) {
-        return (size * size * i + size * j + k);
+    public int code(int i, int j, int k,int inputSize) {
+        return inputSize*inputSize * (i) + inputSize * (j) + k;
     }
 
 
-    public String decode(int code, int size) {
-        int k = code % size;
-        int j = (code / size) % size;
-        int i = code / (size * size);
+    public String decode(int code, int inputSize) {
+        int k = code % inputSize;
+        int j = (code / inputSize) % inputSize;
+        int i = code / (inputSize * inputSize);
         return String.format("(%d, %d, %d)", i , j, k + 1);
     }
 
-
-
-
 }
-
-
-
-
-
-
-
