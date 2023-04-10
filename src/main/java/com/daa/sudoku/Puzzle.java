@@ -135,15 +135,80 @@ public class Puzzle {
         }
 
 
-        for (int col = 1; col <= size; col++) { // For each column
-            for (int val = 1; val <= size; val++) { // For each value
-                for (int row = 1; row <= size; row++) { // For each row in the column
-                    formula.add(code(row, col, val, size));
+
+
+
+
+
+
+
+
+        //ROW: no more than once
+        for (int i=1;i<size;i++) {
+            for (int k=1;k<size; k++) {
+                for (int j=1;j<size; j++) {
+                    for (int l=j+1;l<size;l++) {
+                        formula.add(-1 * code(i,j,k,size));
+                        formula.add(-1 * code(i, l, k,size));
+                        formula.add(0);
+                        clauseCount++;
+                    }
                 }
-                formula.add(0); // Terminate the clause
+            }
+        }
+
+
+        // ROW: at least once
+        for (int i = 1; i <= size; i++) {
+            for (int k = 1; k <= size; k++) {
+                // Create a new clause and add the literals for each cell in the row containing the value k
+                ArrayList<Integer> clause = new ArrayList<>();
+                for (int j = 1; j <= size; j++) {
+                    clause.add(code(i, j, k, size));
+                }
+                // Terminate the clause with 0 and add it to the formula
+                clause.add(0);
+                formula.addAll(clause);
                 clauseCount++;
             }
         }
+
+
+
+
+        //COLUMN : each shows up at least once
+        for (int j=1;j<=size;j++) {
+            for (int k=1;k<=size;k++) {
+                ArrayList<Integer> clause = new ArrayList<>();
+                for (int i=1;i<=size;i++) {
+                    clause.add(code(i,j,k,size));
+                }
+                clause.add(0); // add terminating 0 to the clause
+                formula.addAll(clause); // add the literals to the formula
+                clauseCount++;
+            }
+        }
+
+
+
+
+        //COLUMN : no more than once
+        for (int j=1;j<=size;j++) {
+            for (int k=1;k<=size;k++) {
+                for (int i=1;i<=size;i++) {
+                    for (int l=i+1;l<=size;l++) {
+                        formula.add(-code(i,j,k,size));
+                        formula.add(-code(l,j,k,size));
+                        formula.add(0);
+                        clauseCount++;
+                    }
+                }
+            }
+        }
+
+
+
+
 
 
 
