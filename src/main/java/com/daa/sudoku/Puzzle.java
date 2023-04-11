@@ -77,7 +77,73 @@ public class Puzzle {
         PrintWriter writer = new PrintWriter("Sudoku Solver/formulas/" + puzzleName + "_formula.cnf");
 
 
-        // This code implements constraint #8 that ensures that each subgrid in a Sudoku puzzle contains at most one occurrence of each value.
+
+        // Constraint #1
+        // ROW: A value appears at least once
+        for (int i = 1; i <= size; i++) {
+            for (int k = 1; k <= size; k++) {
+                // Create a new clause and add the literals for each cell in the row containing the value k
+                ArrayList<Integer> clause = new ArrayList<>();
+                for (int j = 1; j <= size; j++) {
+                    clause.add(code(i, j, k, size));
+                }
+                // Terminate the clause with 0 and add it to the formula
+                clause.add(0);
+                formula.addAll(clause);
+                clauseCount++;
+            }
+        }
+
+        // Constraint #2
+        //ROW: A value appears at most once
+        for (int i=1;i<size;i++) {
+            for (int k=1;k<size; k++) {
+                for (int j=1;j<size; j++) {
+                    for (int l=j+1;l<size;l++) {
+                        formula.add(-1 * code(i,j,k,size));
+                        formula.add(-1 * code(i, l, k,size));
+                        formula.add(0);
+                        clauseCount++;
+                    }
+                }
+            }
+        }
+
+
+        // Constraint #3
+        //COLUMN : each value appears at least once
+        for (int j=1;j<=size;j++) {
+            for (int k=1;k<=size;k++) {
+                ArrayList<Integer> clause = new ArrayList<>();
+                for (int i=1;i<=size;i++) {
+                    clause.add(code(i,j,k,size));
+                }
+                clause.add(0); // add terminating 0 to the clause
+                formula.addAll(clause); // add the literals to the formula
+                clauseCount++;
+            }
+        }
+
+
+        // Constraint #4
+        //COLUMN : each value appears at most once
+        for (int j=1;j<=size;j++) {
+            for (int k=1;k<=size;k++) {
+                for (int i=1;i<=size;i++) {
+                    for (int l=i+1;l<=size;l++) {
+                        formula.add(-code(i,j,k,size));
+                        formula.add(-code(l,j,k,size));
+                        formula.add(0);
+                        clauseCount++;
+                    }
+                }
+            }
+        }
+
+
+
+        // Constraint #5
+        // SUBGRID: at least once
         // Calculate the size of each subgrid
         int subGrid = (int) Math.sqrt(size);
         // Iterate through each subgrid in the Sudoku board
@@ -100,15 +166,75 @@ public class Puzzle {
         }
 
 
+        // Constraint #6
+        // SUBGRID: at most once
+        // Iterate through each subgrid in the Sudoku board
+        for(int grid = 1; grid <= size; grid += subGrid) {
+            for (int grid2 = 1; grid2 <= size; grid2 += subGrid) {
+                // Iterate through each possible value in the subgrid
+                for (int val = 1; val <= size; val++) {
+                    // Iterate through each cell in the subgrid
+                    for (int row = grid; row <= grid + (subGrid - 1); row++) {
+                        for (int col = grid2; col <= grid2 + (subGrid - 1); col++) {
+                            // Iterate through each other cell in the subgrid
+                            for (int row2 = row; row2 <= grid + (subGrid - 1); row2++) {
+                                for (int col2 = col + 1; col2 <= grid2 + (subGrid - 1); col2++) {
+                                    // Add a clause that ensures that val cannot appear in both cells
+                                    formula.add(-code(row, col, val, size));
+                                    formula.add(-code(row2, col2, val, size));
+                                    formula.add(0);
+
+                                    clauseCount++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+        // Constraint #7
+        // CELL: at least one value in each cell
+        for (int row = 1; row <= size; row++) {
+            for (int col = 1; col <= size; col++) {
+                ArrayList<Integer> clause = new ArrayList<>();
+                for (int val = 1; val <= size; val++) {
+                    clause.add(code(row, col, val, size));
+                }
+                clause.add(0); // Terminate the clause
+                formula.addAll(clause);
+                clauseCount++;
+            }
+        }
+
+
+        // Constraint #8
+        // CELL: at most one value in each cell
+        for (int row = 1; row <= size; row++) {
+            for (int col = 1; col <= size; col++) {
+                for (int val1 = 1; val1 <= size; val1++) {
+                    for (int val2 = val1 + 1; val2 <= size; val2++) {
+                        int literal1 = code(row, col, val1, size);
+                        int literal2 = code(row, col, val2, size);
+                        formula.add(-literal1);
+                        formula.add(-literal2);
+                        formula.add(0);
+                        clauseCount++;
+                    }
+                }
+            }
+        }
 
 
 
 
-        // This code implements constraint #9 that ensures that given values for cells in a Sudoku puzzle are respected.
-        // The code iterates through each row and column of the Sudoku board.
+        // Constraint #9
+        // Givens: Ensures that the given values in the sudoku puzzle are respected
+        // iterates through each row and column of the Sudoku board.
         for (int row = 0; row <= size - 1; row++) { // For each row
             for (int column = 0; column <= size - 1; column++) { // For each column
-
                 // If the current cell value is not equal to 0 (i.e., a given value)
                 if (!(board[row][column] == 0)) {
                     // Encode the literal for the given value using the code() function
@@ -121,93 +247,6 @@ public class Puzzle {
                 }
             }
         }
-
-
-
-        for (int row = 1; row <= size; row++) { // For each row
-            for (int val = 1; val <= size; val++) { // For each value
-                for (int col = 1; col <= size; col++) { // For each column in the row
-                    formula.add(code(row, col, val, size));
-                }
-                formula.add(0); // Terminate the clause
-                clauseCount++;
-            }
-        }
-
-
-
-
-
-
-
-
-
-
-        //ROW: no more than once
-        for (int i=1;i<size;i++) {
-            for (int k=1;k<size; k++) {
-                for (int j=1;j<size; j++) {
-                    for (int l=j+1;l<size;l++) {
-                        formula.add(-1 * code(i,j,k,size));
-                        formula.add(-1 * code(i, l, k,size));
-                        formula.add(0);
-                        clauseCount++;
-                    }
-                }
-            }
-        }
-
-
-        // ROW: at least once
-        for (int i = 1; i <= size; i++) {
-            for (int k = 1; k <= size; k++) {
-                // Create a new clause and add the literals for each cell in the row containing the value k
-                ArrayList<Integer> clause = new ArrayList<>();
-                for (int j = 1; j <= size; j++) {
-                    clause.add(code(i, j, k, size));
-                }
-                // Terminate the clause with 0 and add it to the formula
-                clause.add(0);
-                formula.addAll(clause);
-                clauseCount++;
-            }
-        }
-
-
-
-
-        //COLUMN : each shows up at least once
-        for (int j=1;j<=size;j++) {
-            for (int k=1;k<=size;k++) {
-                ArrayList<Integer> clause = new ArrayList<>();
-                for (int i=1;i<=size;i++) {
-                    clause.add(code(i,j,k,size));
-                }
-                clause.add(0); // add terminating 0 to the clause
-                formula.addAll(clause); // add the literals to the formula
-                clauseCount++;
-            }
-        }
-
-
-
-
-        //COLUMN : no more than once
-        for (int j=1;j<=size;j++) {
-            for (int k=1;k<=size;k++) {
-                for (int i=1;i<=size;i++) {
-                    for (int l=i+1;l<=size;l++) {
-                        formula.add(-code(i,j,k,size));
-                        formula.add(-code(l,j,k,size));
-                        formula.add(0);
-                        clauseCount++;
-                    }
-                }
-            }
-        }
-
-
-
 
 
 

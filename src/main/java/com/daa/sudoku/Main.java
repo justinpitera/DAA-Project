@@ -70,6 +70,8 @@ public class Main
 
     }
     public static void SolvePuzzle(String puzzlePath) throws TimeoutException, IOException, ContradictionException, ParseFormatException {
+        int puzzleSize = 0;
+
         ISolver solver = SolverFactory.newDefault();
         ModelIterator mi = new ModelIterator(solver);
         solver.setTimeout(3600); // 1 hour timeout
@@ -83,7 +85,7 @@ public class Main
             while (problem.isSatisfiable()) {
                 unsat = false;
                 int [] model = problem.model();
-                // do something with each model
+
             }
             if(unsat)
             {
