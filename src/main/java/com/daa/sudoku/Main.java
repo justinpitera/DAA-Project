@@ -31,6 +31,7 @@ public class Main
 {
 
     ArrayList<Puzzle> PuzzleList = new ArrayList<Puzzle>();
+    int[][] solvedPuzzle;
     /**
      * X Each cell must contain a number between 1 and 9.
      *   Each row must contain each number between 1 and 9 exactly once.
@@ -40,6 +41,9 @@ public class Main
 
      * @param args
      */
+    static long startTime = 0;
+    static long endTime = 0;
+    static long totalTime = 0;
     public static void main(String[] args) throws IOException, ContradictionException, TimeoutException, ParseFormatException {
 
         generateCNFFiles();
@@ -49,8 +53,7 @@ public class Main
     public static void generateCNFFiles() throws IOException, ContradictionException, TimeoutException, ParseFormatException {
         File puzzlesFolderObject = new File(System.getProperty("user.dir") + "/Sudoku Solver/puzzles");
         File[] puzzlesFileList = puzzlesFolderObject.listFiles();
-
-
+        startTime = System.currentTimeMillis(); //start counting time
 
         for (File file : puzzlesFileList)
         {
@@ -117,9 +120,11 @@ public class Main
 
                 unsat = false;
                 int [] model = problem.model();
+
+                // TODO: Print out solved puzzle values
                 for (Integer num : model) {
 
-                    writer.write(decode(num,puzzleSize));
+                    writer.write(decode(num,puzzleSize + 1) + "\n");
 
                     if (num == 0) {
                         writer.write("\n"); // print a newline character
@@ -146,11 +151,17 @@ public class Main
         } catch (TimeoutException e) {
             System.out.println("Timeout, sorry!");
         }
+        endTime = System.currentTimeMillis();
+        totalTime = endTime - startTime;
+        System.out.println("Time Taken: " + totalTime);
     }
+
+
+    // Do i have to change this return to some sort of array so i can easily grab each number?
     public static String decode(int code, int inputSize) {
         int k = code % inputSize;
         int j = (code / inputSize) % inputSize;
         int i = code / (inputSize * inputSize);
-        return String.format("(%d, %d, %d)", i , j, k + 1);
+        return String.format("(%d, %d, %d)", i , j, k); // do i need to add one to k? or anything else??
     }
 }
