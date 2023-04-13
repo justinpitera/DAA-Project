@@ -4,6 +4,8 @@ import org.sat4j.*;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Scanner;
+
 import org.sat4j.reader.DimacsReader;
 import org.sat4j.reader.InstanceReader;
 import org.sat4j.reader.ParseFormatException;
@@ -53,8 +55,8 @@ public class Main
         for (File file : puzzlesFileList)
         {
             Puzzle newPuzzle = new Puzzle(file.getPath());
-            newPuzzle.generateCNFFile();
 
+            newPuzzle.generateCNFFile();
         }
 
 
@@ -64,27 +66,66 @@ public class Main
         File[] formulasFileList = formulasFolderObject.listFiles();
         for (File file : formulasFileList)
         {
-            SolvePuzzle(file.getPath());
+            // Declare the variables
+            int size;
+
+            // Input the integer
+            System.out.println("Enter the size for " + file.getPath() + ": ");
+
+            // Create Scanner object
+            Scanner s = new Scanner(System.in);
+
+            // Read the next integer from the screen
+            size = s.nextInt();
+
+
+
+
+            SolvePuzzle(file.getPath(),size);
+
         }
 
 
     }
-    public static void SolvePuzzle(String puzzlePath) throws TimeoutException, IOException, ContradictionException, ParseFormatException {
-        int puzzleSize = 0;
+    public static void SolvePuzzle(String cnfPath, int puzzleSize) throws TimeoutException, IOException, ContradictionException, ParseFormatException {
+
+
+        File file = new File(cnfPath);
+        String fileName = file.getName();
+
+        Scanner getSizeInput = new Scanner(System.in);    //System.in is a standard input stream
+
+
+
+
+
+
 
         ISolver solver = SolverFactory.newDefault();
         ModelIterator mi = new ModelIterator(solver);
         solver.setTimeout(3600); // 1 hour timeout
         InstanceReader reader = new InstanceReader(mi);
 
-
+        System.out.println("Solving " + puzzleSize + "x" + puzzleSize + ": " + cnfPath);
         // filename is given on the command line
         try {
             boolean unsat = true;
-            IProblem problem = reader.parseInstance(puzzlePath);
+            IProblem problem = reader.parseInstance(cnfPath);
             while (problem.isSatisfiable()) {
+
+                PrintWriter writer = new PrintWriter("Sudoku Solver/solutions/" + fileName + "solution.cnf");
+
                 unsat = false;
                 int [] model = problem.model();
+                for (Integer num : model) {
+
+                    writer.write(decode(num,puzzleSize));
+
+                    if (num == 0) {
+                        writer.write("\n"); // print a newline character
+                    }
+                }
+                writer.close();
 
             }
             if(unsat)

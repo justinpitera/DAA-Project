@@ -9,7 +9,7 @@ public class Puzzle {
     private int[][] board;
     private String filePath;
     private String puzzleName;
-    private int size;
+    private static int size;
 
     private static final ArrayList<Integer> formula = new ArrayList<>(); // The current formula to generate a file for
 
@@ -60,6 +60,12 @@ public class Puzzle {
 
     }
 
+
+
+
+
+    // TODO:
+    // Change index in for loops for i, j to start at 0. and go to size - 1
     /**
      * The generateCNFFile method generates a DIMACS CNF file based on the constraints of Sudoku and the clues given in a loaded puzzle.
      *
@@ -80,12 +86,12 @@ public class Puzzle {
 
         // Constraint #1
         // ROW: A value appears at least once
-        for (int i = 1; i <= size; i++) {
+        for (int i = 0; i <= size - 1; i++) {
             for (int k = 1; k <= size; k++) {
                 // Create a new clause and add the literals for each cell in the row containing the value k
                 ArrayList<Integer> clause = new ArrayList<>();
-                for (int j = 1; j <= size; j++) {
-                    clause.add(code(i, j, k, size));
+                for (int j = 0; j <= size - 1; j++) {
+                    clause.add(code(i, j, k));
                 }
                 // Terminate the clause with 0 and add it to the formula
                 clause.add(0);
@@ -96,12 +102,12 @@ public class Puzzle {
 
         // Constraint #2
         //ROW: A value appears at most once
-        for (int i=1;i<size;i++) {
-            for (int k=1;k<size; k++) {
-                for (int j=1;j<size; j++) {
-                    for (int l=j+1;l<size;l++) {
-                        formula.add(-1 * code(i,j,k,size));
-                        formula.add(-1 * code(i, l, k,size));
+        for (int i=0;i<=size - 1;i++) {
+            for (int k=1;k<=size; k++) {
+                for (int j=0;j<=size - 1; j++) {
+                    for (int l=j+1;l<= size -1 ;l++) {
+                        formula.add(-code(i,j,k));
+                        formula.add(-code(i, l, k));
                         formula.add(0);
                         clauseCount++;
                     }
@@ -112,11 +118,11 @@ public class Puzzle {
 
         // Constraint #3
         //COLUMN : each value appears at least once
-        for (int j=1;j<=size;j++) {
+        for (int j=0;j<=size - 1;j++) {
             for (int k=1;k<=size;k++) {
                 ArrayList<Integer> clause = new ArrayList<>();
-                for (int i=1;i<=size;i++) {
-                    clause.add(code(i,j,k,size));
+                for (int i=0;i<=size - 1;i++) {
+                    clause.add(code(i,j,k));
                 }
                 clause.add(0); // add terminating 0 to the clause
                 formula.addAll(clause); // add the literals to the formula
@@ -127,12 +133,12 @@ public class Puzzle {
 
         // Constraint #4
         //COLUMN : each value appears at most once
-        for (int j=1;j<=size;j++) {
+        for (int j=0;j<=size -1;j++) {
             for (int k=1;k<=size;k++) {
-                for (int i=1;i<=size;i++) {
+                for (int i=0;i<=size -1;i++) {
                     for (int l=i+1;l<=size;l++) {
-                        formula.add(-code(i,j,k,size));
-                        formula.add(-code(l,j,k,size));
+                        formula.add(-code(i,j,k));
+                        formula.add(-code(l,j,k));
                         formula.add(0);
                         clauseCount++;
                     }
@@ -147,15 +153,15 @@ public class Puzzle {
         // Calculate the size of each subgrid
         int subGrid = (int) Math.sqrt(size);
         // Iterate through each subgrid in the Sudoku board
-        for(int grid = 1; grid <= size; grid += subGrid) {
-            for (int grid2 = 1; grid2 <= size; grid2 += subGrid) {
+        for(int grid = 0; grid <= size - 1; grid += subGrid) {
+            for (int grid2 = 0; grid2 <= size - 1; grid2 += subGrid) {
                 // Iterate through each possible value in the subgrid
                 for (int val = 1; val <= size; val++) {
                     // Iterate through each cell in the subgrid
                     for (int row = grid; row <= grid + (subGrid - 1); row++) {
                         for (int col = grid2; col <= grid2 + (subGrid - 1); col++) {
                             // Add the literal for the cell and value to the clause
-                            formula.add(code(row, col, val, size));
+                            formula.add(code(row, col, val));
                         }
                     }
                     // Terminate the clause with 0, add it to the formula, and increment the clause count
@@ -169,8 +175,8 @@ public class Puzzle {
         // Constraint #6
         // SUBGRID: at most once
         // Iterate through each subgrid in the Sudoku board
-        for(int grid = 1; grid <= size; grid += subGrid) {
-            for (int grid2 = 1; grid2 <= size; grid2 += subGrid) {
+        for(int grid = 0; grid <= size - 1; grid += subGrid) {
+            for (int grid2 = 0; grid2 <= size - 1; grid2 += subGrid) {
                 // Iterate through each possible value in the subgrid
                 for (int val = 1; val <= size; val++) {
                     // Iterate through each cell in the subgrid
@@ -180,8 +186,8 @@ public class Puzzle {
                             for (int row2 = row; row2 <= grid + (subGrid - 1); row2++) {
                                 for (int col2 = col + 1; col2 <= grid2 + (subGrid - 1); col2++) {
                                     // Add a clause that ensures that val cannot appear in both cells
-                                    formula.add(-code(row, col, val, size));
-                                    formula.add(-code(row2, col2, val, size));
+                                    formula.add(-code(row, col, val));
+                                    formula.add(-code(row2, col2, val));
                                     formula.add(0);
 
                                     clauseCount++;
@@ -195,37 +201,37 @@ public class Puzzle {
 
 
 
-        // Constraint #7
-        // CELL: at least one value in each cell
-        for (int row = 1; row <= size; row++) {
-            for (int col = 1; col <= size; col++) {
-                ArrayList<Integer> clause = new ArrayList<>();
-                for (int val = 1; val <= size; val++) {
-                    clause.add(code(row, col, val, size));
+        // Constraint #7, ensures that each cell contains at least one value.
+        for (int row = 0; row <= size - 1; row++) {   // loop through all rows
+            for (int col = 0; col <= size - 1; col++) {   // loop through all columns
+                ArrayList<Integer> clause = new ArrayList<>();   // create an empty list to hold the literals for this clause
+                for (int val = 1; val <= size; val++) {   // loop through all possible values for this cell
+                    clause.add(code(row, col, val));   // add a SAT literal that represents the possibility of the value being in the cell
                 }
-                clause.add(0); // Terminate the clause
-                formula.addAll(clause);
-                clauseCount++;
+                clause.add(0);   // add a clause separator (0)
+                formula.addAll(clause);   // add the clause to the formula
+                clauseCount++;   // increment the clause count
             }
         }
 
 
-        // Constraint #8
-        // CELL: at most one value in each cell
-        for (int row = 1; row <= size; row++) {
-            for (int col = 1; col <= size; col++) {
-                for (int val1 = 1; val1 <= size; val1++) {
-                    for (int val2 = val1 + 1; val2 <= size; val2++) {
-                        int literal1 = code(row, col, val1, size);
-                        int literal2 = code(row, col, val2, size);
-                        formula.add(-literal1);
-                        formula.add(-literal2);
-                        formula.add(0);
-                        clauseCount++;
+
+        // Constraint #8, ensures that each cell contains at most one value.
+        for (int row = 0; row <= size -1 ; row++) {   // loop through all rows
+            for (int col = 0; col <= size -1; col++) {   // loop through all columns
+                for (int val1 = 1; val1 <= size; val1++) {   // loop through all possible values for this cell
+                    for (int val2 = val1 + 1; val2 <= size; val2++) {   // loop through all possible values greater than val1 for this cell
+                        int literal1 = code(row, col, val1);   // encode the first value as a SAT literal
+                        int literal2 = code(row, col, val2);   // encode the second value as a SAT literal
+                        formula.add(-literal1);   // add a clause that prohibits the first value from being true
+                        formula.add(-literal2);   // add a clause that prohibits the second value from being true
+                        formula.add(0);   // add a clause separator (0)
+                        clauseCount++;   // increment the clause count
                     }
                 }
             }
         }
+
 
 
 
@@ -238,7 +244,7 @@ public class Puzzle {
                 // If the current cell value is not equal to 0 (i.e., a given value)
                 if (!(board[row][column] == 0)) {
                     // Encode the literal for the given value using the code() function
-                    int literal = code(row, column, board[row][column], size);
+                    int literal = code(row, column, board[row][column]);
                     // Add the literal to the formula and terminate the clause with 0
                     formula.add(literal);
                     formula.add(0);
@@ -274,15 +280,15 @@ public class Puzzle {
 
 
     // Encode values to base-size
-    public int code(int i, int j, int k,int inputSize) {
-        return inputSize*inputSize * (i) + inputSize * (j) + k;
+    public static int code(int i, int j, int k) {
+        return size*size * (i) + size * (j) + k;
     }
 
 
-    public String decode(int code, int inputSize) {
-        int k = code % inputSize;
-        int j = (code / inputSize) % inputSize;
-        int i = code / (inputSize * inputSize);
+    public static String decode(int code) {
+        int k = code % size;
+        int j = (code / size) % size;
+        int i = code / (size * size);
         return String.format("(%d, %d, %d)", i , j, k + 1);
     }
 
